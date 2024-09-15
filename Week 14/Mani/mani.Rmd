@@ -1,0 +1,48 @@
+---
+title: "Problem Set 12"
+output: html_document
+date: "2023-12-05"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Question - 1: Trosset chapter 15.7 exercise 5, parts (a), (b), and (c)
+
+### Input data
+```{r}
+sister <- c(69, 64, 65, 63, 65, 62, 65, 64, 66, 59, 62)
+brother <- c(71, 68, 66, 67, 70, 71, 70, 73, 72, 65, 66)
+
+length(sister)
+length(brother)
+```
+
+### (a) sample coefficient of determination: the sample coefficient of determination tells how much of the variation in y is “explained” by the linear model. In simple linear regression, it’s literally just the square of the correlation between the 2 variables (sister and brother variables)
+
+```{r}
+cor(sister, brother)^2
+```
+Alternatively solution:
+```{r}
+# Linear regression
+fit <- lm(brother ~ sister)
+
+# R-squared
+rsquared <- summary(fit)$r.squared
+rsquared
+```
+### (b) To test whether knowing a sister's height helps predict her brother's height, we can perform a hypothesis test. The null hypothesis (H0) is that the slope (β1) is zero, indicating no relationship.
+```{r}
+summary(fit)
+```
+### From the linear model summary, we see that the P-value is 0.0744 which is not less than the given alpha (0.05). Therefore we fail to reject the null hypothesis and there is not enough evidence to conclude that knowing a sister's height helps predict her brother's height.
+
+### (c) 0.90-level confidence interval for the slope of the population regression line for predicting y from x.
+```{r}
+conf_interval <- confint(fit, level = 0.90)
+conf_interval
+```
+### The 0.90 level confidence interval is 0.054 - 1.1278.
+

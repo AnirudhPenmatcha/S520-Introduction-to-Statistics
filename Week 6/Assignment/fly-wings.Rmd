@@ -1,0 +1,101 @@
+---
+title: "Housefly wing lengths"
+author: "Anirudh Penmatcha"
+date: "9/27/23"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## The data
+
+What does the distribution of housefly wing lengths (in mm) look like? This was apparently an important question in 1955, and the data set we look at is a famous one, from Sokal & Hunter, reproduced here:
+
+https://seattlecentral.edu/qelp/sets/057/057.html
+
+The data set can be scanned in from the web:
+
+```{r}
+wing.length <- scan("https://seattlecentral.edu/qelp/sets/057/s057.txt")
+```
+
+This reads the data in as a vector. To use `ggplot()`, we need the data in a data frame. The following code creates a data frame called `wings.df` that contains a variable called `Length`:
+
+```{r}
+wings.df <- data.frame(Length = wing.length)
+```
+
+We also need to load the `ggplot2` package to use the functions in it:
+
+```{r}
+library(ggplot2)
+```
+
+
+
+## Summary statistics
+
+Find the sample mean:
+
+```{r}
+mean(wings.df$Length)
+```
+
+The sample mean fly wing length is 45.5 millimeters.
+
+Find the plug-in standard deviation and the sample standard deviation:
+
+```{r}
+# Plug-in
+sqrt(mean(wings.df$Length^2) - mean(wings.df$Length)^2)
+# Sample SD
+sd(wings.df$Length)
+```
+
+There's hardly any difference. To one decimal place, the standard deviation of fly wing lengths is 3.9 millimeters.
+
+We can also describe the data using the five-number summary:
+
+```{r}
+summary(wings.df)
+```
+
+The median fly wing length is 45.5 millimeters. The interquartile range is 5 millimeters.
+
+
+
+## Plot the data
+
+Plot the empirical CDF:
+
+```{r}
+ggplot(wings.df, aes(x = Length)) + stat_ecdf() + ylab("Empirical CDF")
+```
+
+Draw a histogram:
+
+```{r}
+ggplot(wings.df, aes(x = Length)) + geom_histogram(breaks = seq(35.5, 55.5, 1))
+```
+
+Draw a density estimate:
+
+```{r}
+ggplot(wings.df, aes(x = Length)) + geom_density() + ylab("Estimated PDF")
+```
+
+Draw a normal quantile-quantile plot:
+
+```{r}
+ggplot(wings.df, aes(sample = Length)) + stat_qq() + stat_qq_line()
+```
+
+Does the data look like it follows a normal distribution, apart from small discrepancies like rounding? Yes it does. 
+
+There's one thing about the data that might make one suspicious that the data is made up. The suspicious thing is: The graphs look very neat and perfect which real life datasets don't usually look like
+
+
+
+

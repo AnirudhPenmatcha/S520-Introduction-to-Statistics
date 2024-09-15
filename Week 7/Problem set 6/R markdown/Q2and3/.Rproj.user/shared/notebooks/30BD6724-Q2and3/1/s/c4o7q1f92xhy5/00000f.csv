@@ -1,0 +1,7 @@
+"0","urn.model <- function(){"
+"0","  urn <- c(1,1,1,1,2,5,5,10,10,10)"
+"0","  "
+"0","  #sampling"
+"0","  sampling <- sample(urn, size = 40, replace = TRUE)"
+"0","  return(sum(sampling))"
+"0","}"

@@ -1,0 +1,122 @@
+---
+title: "Problem Set 11"
+output: html_document
+date: "2023-11-30"
+---
+
+# Question 1
+
+# (a)
+
+```{r}
+library(ggplot2)
+# Read the data
+unusual <- matrix(scan("https://mtrosset.pages.iu.edu/StatInfeR/Data/unusual.dat"), ncol = 2, byrow = TRUE)
+```
+
+```{r}
+unusual.df <- data.frame(unusual)
+ggplot(unusual.df, aes(sample = X1)) + stat_qq() + ggtitle("normal probability plot of the x values")
+```
+From what it looks like the data doesn't have a extreme skeweness or outliers that would contradict approximate normality. So we can say that the x values are approximately normal. 
+
+# (b)
+
+```{r}
+ggplot(unusual.df, aes(sample = X2)) + stat_qq() + ggtitle("normal probability plot of the y values")
+```
+The line is approximately close to a straight line without any extreme skeweness or outliers. So there is a high probability that it was drawn from a normal distribution. We can that the y values are approximately normal.
+
+# (c)
+
+There is another way to check for normality in bivariate data which is by plotting a scatter diagram of the two columns and see if there is an ellipse like relationship that can be superimposed on to it
+```{r}
+source("https://mtrosset.pages.iu.edu/StatInfeR/binorm.R")
+binorm.scatter(cbind(unusual.df$X1, unusual.df$X2))
+```
+One thing we notice is that there is no obvious relationship between the two variables but that doesn't mean that the two variables are not normal. We are interested to know if the values appear to have been drawn from a bivariate normal distribution and from what we can see, it doesn't look like the data was drawn from a bivariate normal because the ellipse does a horrible job of describing the shape of the data as there is a line of data going from top left to bottom right which is being left out. For the data to be considered a bivariate distribution, the ellipse should describe the data as close as possible. 
+
+```{r}
+cor(unusual.df$X1, unusual.df$X2)
+```
+
+# Question 3
+
+# (a)
+```{r}
+n <- 33
+mean1 <- 75
+sd1 <- 10
+mean2 <- 64
+sd2 <- 12
+corr <- 0.5
+
+l <- corr * (sd2/sd1)
+p <- mean2 - (l * mean1)
+marks2 <- l * 80 + p
+marks2
+```
+
+# (b)
+```{r}
+marks1 <- mean1 + 0.5 * sd1
+marks1
+```
+
+
+
+# Question 4
+
+# (b)
+
+There is a regression formula that we can make use of to make predictions using only the given data
+```{r}
+mean <- 81
+corr <- 0.54
+wins_2014 <- 98
+predict_2015 <- mean + (corr * (wins_2014 - mean))
+predict_2015
+```
+
+
+# Question 5
+
+```{r}
+adults <- read.table("adults.txt", sep = " ", header = TRUE)
+adults
+```
+
+# (a)
+
+```{r}
+library(ggplot2)
+
+ggplot(adults, aes(x = Height., y = Weight)) + geom_point() + geom_smooth(method = "lm", se = FALSE) + labs(x = "Height", y = "Weight") + ggtitle("Scatterplot of Height vs Weight with Regression Line")  
+
+```
+
+# (b)
+
+```{r}
+ggplot(adults, aes(x = Weight, y = Height.)) + geom_point() + geom_smooth(method = "lm", se = FALSE) + labs(x = "Height", y = "Weight") + ggtitle("Scatterplot of Height vs Weight with Regression Line")
+
+```
+
+# (c)
+
+```{r}
+lm_model <- lm(Weight ~ Height., data = adults)
+height_predict <- 180
+new_data <- data.frame(Height. = height_predict)
+w <- predict(lm_model, newdata = new_data)
+w
+```
+
+# (d)
+
+```{r}
+lm_model2 <- lm(Height. ~ Weight, data = adults)
+new_data2 <- data.frame(Weight = w)
+predict(lm_model2, newdata = new_data2)
+```
+

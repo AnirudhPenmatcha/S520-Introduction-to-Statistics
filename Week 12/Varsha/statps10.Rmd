@@ -1,0 +1,81 @@
+---
+title: "PROBLEM SET 10"
+author: "Sri Varsha Naharajan"
+date: "2023-11-16"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Q1
+```{r}
+pval=1-pchisq(16.333,df=7)
+pval
+```
+
+Q3
+```{r}
+pval=1-pchisq(4.457,df=1)
+pval
+```
+Q4
+```{r}
+pval=1-pchisq(75.89,df=6)
+pval
+```
+
+Q5
+```{r}
+pval=1-pchisq(16.72,df=2)
+pval
+```
+
+Q6
+
+Null Hypothesis, H0: The Poisson model is a good fit for the data
+Alternate Hypothesis, H1: The Poisson model is not a good fit for the data
+
+```{r}
+d <- read.csv("epl2223.csv")
+```
+
+```{r}
+# (a) Create a new variable TotalGoals
+d$TotalGoals <- d$FTHG + d$FTAG
+```
+
+```{r}
+# (b) Count the number of games with 0 to 5 goals, 6 goals, and 7 or more goals
+obv_counts <- table(cut(d$TotalGoals, breaks=c(-0.5, 0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5, Inf)))
+obv_counts
+```
+
+```{r}
+# (c) Find the mean number of total goals over all 380 games
+mEAn <- mean(d$TotalGoals)
+mEAn
+```
+
+```{r}
+# (d) Find the expected count for each category
+exp_counts <- length(data$TotalGoals) * dpois(0:6, lambda = mEAn)
+exp_counts <- c(exp_counts, sum(dpois(7:20, lambda = mEAn)))
+```
+
+```{r}
+# (e) Calculate chi-squared statistic and P-value
+chi_squared <- sum((obv_counts - exp_counts)^2 / exp_counts)
+pval<- 1 - pchisq(chi_squared, df = 6) 
+
+cat("Chi-squared statistic:", chi_squared, "\n")
+cat("P-value:", pval, "\n")
+
+# State a conclusion
+if (pval < 0.05) {
+  cat("We reject the null hypothesis and conclude that the Poisson model is not a good fit for the data. .\n")
+} else {
+  cat("We fail to reject the null hypothesis and conclude that the Poisson model is a good fit for the data.  .\n")
+}
+```

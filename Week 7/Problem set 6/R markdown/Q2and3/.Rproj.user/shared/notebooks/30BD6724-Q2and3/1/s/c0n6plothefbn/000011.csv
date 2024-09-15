@@ -1,0 +1,5 @@
+"0","x <- scan(""https://mtrosset.pages.iu.edu/StatInfeR/Data/sample774.dat"")"
+"2","Read 20 items
+"
+"0","cdf_x <- ecdf(x)"
+"0","plot(cdf_x, main=""Empirical CDF of x"", xlab=""x"", ylab=""F(x)"")"

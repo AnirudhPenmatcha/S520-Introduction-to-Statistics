@@ -1,0 +1,233 @@
+---
+title: "PS12"
+author: "Dilip Nikhil Francies"
+date: "2023-12-07"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+getwd()
+```
+### Question 2: Anxiety and Exams
+
+Read the given data:
+
+```{r}
+exam_anxiety <- read.csv("examanxiety.txt",sep = "\t")
+head(exam_anxiety,2)
+```
+Split the data:
+
+```{r}
+anxiety_male <- exam_anxiety$Anxiety[exam_anxiety$Gender =="Male"]
+anxiety_feamale <- exam_anxiety$Anxiety[exam_anxiety$Gender =="Female"]
+```
+
+#### Question 2a:
+
+Lets perform two sample test with the following hypothesis:
+
+Null : There is no mean difference in anxiety levels between males and females ie. muFemales = muMales
+Alternate hypotheses: There is difference betweeen anxiety levels between males and females ie muFemales != muMales
+
+
+```{r}
+result <- t.test(anxiety_male,anxiety_feamale,var.equal =FALSE)
+print(result)
+```
+From the above results, its clear that there is no difference as the p-value obtained is not tiny.
+
+#### Question 2b:
+
+Lets draw the scatter plot with the regression line:
+
+```{r}
+library(ggplot2)
+scatterplot <- ggplot(exam_anxiety, aes(x = Anxiety, y = Exam)) +
+  geom_point() +  # Scatterplot
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +  # Add regression line
+  labs(x = "Anxiety", y = "Exam score", title = "Scatterplot of Anxiety vs Exam score with Least Squares Regression Line")
+
+# Print the plot
+print(scatterplot)
+```
+
+```{r}
+model <- lm(Exam ~ Anxiety, data = exam_anxiety)
+summary(model)
+```
+
+From the results and the plot,it looks like there is a downward trend in the data, When the anxiety levels are higher, the marks tend to be all over the place.The regression model does a horrible job in in capturing the variance in the data set.Linear Regression may not be our best model in predicting the exam score based on anxiety levels.
+
+
+```{r}
+library(broom)
+```
+```{r}
+```
+
+#### Question 2c:
+
+i. Linearity:
+
+Scatter plot:
+
+```{r}
+
+ggplot(exam_anxiety, aes(x = Anxiety, y = Exam)) +
+  geom_point() +
+  labs(title = "Scatter Plot of Anxiety vs Exam Score",
+       x = "Anxiety",
+       y = "Exam Score")
+```
+
+It is clear that there is no definite linear relationship between the two variables.Polynomial? may be! There does seem to be a lot of outliers, and most of the data seems to be scattered on the right side of the plot with varying exam scores for a small range of anxiety levels. 
+
+
+ii.Independence. They are independent.
+
+Because the exam scores recorded are for different students, ideally the dataset should be independent as long as there were no multiple measurements taken for the same students.
+
+
+iii. Homoskedasticity:
+
+
+```{r}
+ggplot(model, aes(x = fitted(model), y = resid(model))) +
+  geom_point() +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  labs(title = "Residuals vs Fitted Values",
+       x = "Fitted Values",
+       y = "Residuals")
+
+```
+
+Let's plot absolute residual plot:
+
+```{r}
+aug_model_df <- augment(model)
+ggplot(aug_model_df, aes(exam_anxiety$Anxiety, .resid)) + geom_point() + geom_smooth()
+
+```
+The residuals get smaller as we go right, and hence there is no constant spread. Homoskedasticity check fails.
+
+```{r}
+residuals_df <- data.frame(
+  Fitted_Values = fitted(model),
+  Residuals = residuals(model)
+)
+
+library(ggplot2)
+ggplot(residuals_df, aes(x = Fitted_Values, y = Residuals)) +
+  geom_point() +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  labs(title = "Residuals vs Fitted Values with Observed Pattern",
+       x = "Fitted Values",
+       y = "Residuals")
+
+```
+Normality of errors :
+
+lets feed the residual to a normal QQ plot:
+
+```{r}
+ggplot(aug_model_df, aes(sample = .resid)) + stat_qq() + stat_qq_line()
+```
+
+It definitely is not straight.At the tails it deviates significantly from the qqline. Hence, one could conclude that the residuals are not normal.
+
+
+### Question 3:
+
+#### Question 3a:
+
+Assumption of ANOVA
+
+1. Observations are independent:
+Yes, Because the rats were randomly divided into four groups and were put in a cage, to a certain extent one could say this was a randomized control experiement. So the observations are independent.
+
+2.All the populations are normal : 
+From the given QQ plots, except at the tails, the observations does look like they fall on the straight line. But perhaps, if we had more sample we could have been sure of the normality. From the 35 observations for each group we have, we can assume that the population is normal.
+
+3. Homoscedasticity:
+
+Apart from the fruit diet sample that has a standard deviation of 16.9, other sample's standard deviation are very close to each other. To a certain extent, one can conclude that the stds of all four samples (16.9, 14.6,14.2,14.1) are kinda close to each other. hence Homoskedasticity checks out.
+
+#### Question 3b:
+
+```{r}
+N <- 140
+n<- 35
+
+fruitMean <- 83.5
+fruitSD <- 16.9
+carbsMean <- 92.3
+carbsSD <- 14.6
+meatMean <- 88.6
+meatSD <- 14.2
+mixedMean <- 99.4
+mixedSD <- 14.1
+
+
+means <- c(fruitMean,carbsMean,meatMean,mixedMean)
+SD <- c(fruitSD,carbsSD,meatSD,mixedSD)
+grandMean <- mean(means)
+SSB <- n * (fruitMean-grandMean)^2 + n * (carbsMean-grandMean)^2 + n * (meatMean-grandMean)^2 + n * (mixedMean-grandMean)^2
+betweenDF <- 4-1
+between.meansquare <- SSB/betweenDF
+SSB
+betweenDF
+between.meansquare
+
+```
+
+```{r}
+ssw <- (n-1) * fruitSD^2 + (n-1) * carbsSD^2 + (n-1) * meatSD^2 + (n-1) * mixedSD^2
+dfw <- N-4 # 4 groups
+within.meansqaure <- ssw/dfw
+ssw
+within.meansqaure
+dfw
+```
+
+```{r}
+F <- between.meansquare/within.meansqaure
+F
+```
+
+```{r}
+1 - pf(F, df1 = betweenDF, df2 = dfw)
+```
+Hence, 
+SSB = 4698.75, BDF = 3, between mean square = 1566.25
+ 
+SSW = 30573.48, within mean square = 224.805, WDF = 136
+
+F = 6.967149
+
+Total = 35272.23
+
+Total DF = 136 + 3 = 139
+
+p-value = 0.00021
+
+```{r}
+# Complete ANOVA table
+ANOVA_table <- data.frame(
+  Variation = c("Between", "Within", "Total"),
+  `Sum of squares` = c(SSB, ssw, sum(SSB, ssw)),
+  DF = c(betweenDF, dfw, N - 1),
+  `Mean square` = c(MSB, MSW, NA),  # NA for Total row
+  F = c(F_statistic, NA, NA),  # NA for Total row
+  `P-value` = c((1 - pf(F, df1 = betweenDF, df2 = dfw)), NA, NA)  # NA for Total row
+)
+print(ANOVA_table)
+```
+
+#### Question 3c:
+
+There is infact strong evidence against the null hypothesis with a p-value of 0.00021.Yes, our sample size is small. But to a certain extent we can conclude that there is significant difference in the means of the group which means one of the four groups has a significant difference in the amount of weight gained. Do we know which group? we don't. But with further analysis, one could find out the answer.

@@ -1,0 +1,110 @@
+---
+title: "Q2and3.rmd"
+output: html_document
+date: "2023-10-13"
+---
+
+# Question 2
+
+(a) Graph the empirical cdf of x
+```{r}
+x <- scan("https://mtrosset.pages.iu.edu/StatInfeR/Data/sample774.dat")
+
+cdf_x <- ecdf(x)
+plot(cdf_x, main="Empirical CDF of x", xlab="x", ylab="F(x)")
+```
+
+(b) Calculate the plug-in estimates of the mean, the variance, median, and the interquartile range.
+
+```{r}
+x_mean <- mean(x)
+print(paste("Mean = ", x_mean))
+x_var <- var(x)
+print(paste("Variance = ", x_var))
+x_median <- median(x)
+print(paste("Median = ", x_median))
+x_IQR <- IQR(x)
+print(paste("IQR = ", x_IQR))
+```
+
+(c) Take the square root of the plug-in estimate of the variance and compare it to the plug-in estimate of the interquartile range. Do you think that x was drawn from a normal distribution? Why or why not?
+
+We are basically being asked to check using the standard deviation and IQR, if x was take from a normal distribution.
+
+In a normal distribution, we know that IQR = 1.349 * standard deviation.
+
+So if the IQR we got with the R code and IQR we get with the formula mentioned above are equal, we can conclude that x is from a normal distribution.
+
+IQR calculated by R directly:
+```{r}
+print(paste("IQR calculated using R = ", x_IQR))
+x_sd <- sqrt(x_var)
+print(paste("Standard deviation = ", x_sd))
+calculated_IQR <- 1.349 * x_sd
+print(paste("Calculated IQR = ", calculated_IQR))
+```
+
+We see that the IQR from R code is 1.10775 and the calculated IQR is 2.31. Because they are not equal, we may conclude that x was not taken from a normal distribution.
+
+(d) Use the qqnorm function to create a normal probability plot. Do you think that x was drawn from a normal distribution? Why or why not?
+```{r}
+qqnorm(x)
+qqline(x)
+```
+
+Generally, when the points are following a linear relationship and are closely aligned with the line, then it can be said that x is from a normal distribtion.
+
+However, we can see that most points closely follow the line but not all of them do. So the data is possibly a little skewed. But it's a little unclear to say if our sample x is reasonably close to a normal distribution. Therefore, it's most likely not normally distributed.
+
+(e) Now consider the transformed sample y produced by replacing each x i with its natural logarithm. If x is stored in the vector x , then y can be computed by the following R command: > y <- log(x). Do you think that y was drawn from a normal distribution? Why or why not?
+```{r}
+y <- log(x)
+```
+
+```{r}
+qqnorm(y)
+qqline(y)
+```
+
+In the above plot we can see that not all points are next to the line. Hence, we cannot say that y is from a normal distribution.
+
+# Question 3
+
+(a) Write an R function named urn.model that simulates this experiment, i.e evaluating urn.model is like observing a value, y , of the random variable Y.
+
+```{r}
+urn.model <- function(){
+  urn <- c(1,1,1,1,2,5,5,10,10,10)
+  
+  #sampling
+  sampling <- sample(urn, size = 40, replace = TRUE)
+  return(sum(sampling))
+}
+```
+
+```{r}
+y <- urn.model()
+print(y)
+```
+
+(b) Use urn.model to generate a sample, y = { y 1 , . . . , y 25 } , of n = 25 observed sums. The random variable Y is discrete. Does it appear that the distribution of Y can be approximated by a normal distribution? Why or why not?
+
+```{r}
+y_25 <- replicate(25, urn.model())
+print(y_25)
+```
+
+```{r}
+qqnorm(y_25)
+qqline(y_25)
+```
+
+We can see in the above plot that the points are not perfectly aligned along the line but are close enough to say that it's reasonably close to being able to represent it as a normal distribution. Therefore, we can say that y can be represented as a normal distribution. 
+
+```{r}
+y_25_sum <- sum(y_25)
+print(paste("Generating the sum of 25 different samples = ", y_25_sum))
+```
+
+
+

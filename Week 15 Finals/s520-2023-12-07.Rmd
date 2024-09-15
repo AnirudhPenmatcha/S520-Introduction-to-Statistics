@@ -1,0 +1,228 @@
+---
+title: "In-class 12/7/23"
+author: "S520"
+date: "2023-12-07"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Fall 2021 final
+
+### Q1: Athletics vs. faculty
+
+(a). Draw boxplots OR see that the mean in each isn't much bigger than the standard deviation. We know in Normal distributions, it's not that hard to get a small percentage of observations more than 2 SDs from the mean. This would imply we'd have a sizable proportion of negative salaries, which is not the case. So the distributions can't be close to normal.
+
+(b). 95% CIs for the population means.
+
+Athletics:
+```{r}
+81090 - 2.009575 * 73339.2 / sqrt(50)
+81090 + 2.009575 * 73339.2 / sqrt(50)
+```
+
+Faculty:
+```{r}
+87039 - 1.984217 * 50051.15 / sqrt(100)
+87039 + 1.984217 * 50051.15 / sqrt(100)
+```
+
+(c). The P-value is NOT small, so we can't prove there's a difference between the population means for athletics and faculty. HOWEVER, this doesn't mean the statement is true. The spreads of the two distributions are quite different.
+
+### Q2: SES and GPA
+
+Slope: r * SD(y) / SD(y) = 0.4 * 0.66 / 1 = .264
+
+Intercept = mean(y) - slope * mean(x) = 3.21 - 0 = 3.21
+
+Equation:
+
+Predicted GPA = 3.21 + .264 * SES
+
+(a). Rich student: predicted GPA = 3.21 + .264 = 3.474
+
+(b). Poor student: predicted GPA = 3.21 - .264 = 2.946
+
+(c). The author's statement is irrelevant.
+
+
+### Q3: Donuts
+
+Between DF = 4 - 1 = 3
+
+Within DF = 24 - 4 = 20
+
+Total DF = 23
+
+Between MS:
+```{r}
+1636.5 / 3
+```
+
+Within MS:
+```{r}
+2017.8 / 20
+```
+
+F-statistic:
+```{r}
+F <- 545.5 / 100.89
+F
+```
+
+```{r}
+1 - pf(F, df1 = 3, df2 = 20)
+```
+
+(b). The null hypothesis is that all four fats have the same expected fat absorbed. H0 : muA = muB = muC = muD, H1: at least one of the fats has a different mean absorption.
+
+The P-value is small, so we can reject the null hypothesis. There's evidence that the fats do not all have the same mean absorption (but the samples are small.)
+
+(c). If you do six tests, each at level 0.05, then the probability of making at least one Type I error (rejecting a null that's true) will be much greater than 0.05. So we either need to adjust the threshold (e.g. to 0.05 / 6) or adjust the P-values.
+
+
+
+### Q4: Second-digit Benford's law
+
+(a).
+```{r}
+probs <- c(.12, .114, .109, .104, .1, .097, .093, .09, .088, .085)
+# sum(probs)
+expected <- 4586 * probs
+expected
+```
+
+(b). Do Pearson's:
+
+```{r}
+observed <- c(573, 505, 492, 478, 459, 455, 440, 393, 407, 384)
+sum(observed)
+(observed - expected)^2 / expected
+sum((observed - expected)^2 / expected)
+```
+
+The chi-square statistic is about 3.387.
+```{r}
+1 - pchisq(3.387, df = 10 - 1)
+```
+
+(c). Null: Counts follow Benford's law. Alt: Counts don't follow Benford's law.
+
+The P-value is NOT small. The data is consistent with the second-order Benford's law. (I don't know what this implies about the 2012 election, but there is no obvious irregularity.)
+
+
+### Q5: Exam differences
+
+(a). 98% CI for the mean difference:
+```{r}
+0.98 - 2.38 * 1.82 / sqrt(70)
+0.98 + 2.38 * 1.82 / sqrt(70)
+```
+
+(b). H0 : mu = 0, H1 : mu is not 0
+```{r}
+diff <- rep(c(-4,-3,-2,-1.5,-1,0,1,2,3,4,6), times=c(1,1,1,1,8,19,16,7,9,6,1))
+summary(diff)
+t.test(diff, conf.level = 0.98)
+```
+
+Or, more easily:
+```{r}
+t.stat <- 0.98 / (1.82 / sqrt(70))
+t.stat
+2 * (1 - pt(abs(t.stat), df = 69))
+```
+
+(c). The P-value is very small, so there is strong evidence against the null hypothesis. There's evidence that the students do *better* on the final question than on the midterm. With 98% confidence, the mean improvement is between 0.5 and 1.5 points (on a 10-point scale.) The sample size is 70, which is decent (if not huge). However, we don't know *why* the students did better.
+
+## Fall 2019 final
+
+### Q1: bioChemists
+
+(a). No, the student is not correct.
+
+The Central Limit Theorem says that because the sample size is large, we can use the Normal distribution to make probability statements about the *sample mean* and its error distribution.
+
+The student is making a probability statement about one student, not about the sample mean. So the Cnetral Limit Theorem can't be used.
+
+(b). 95% CI for the mean articles:
+```{r}
+1.693 - 1.96 * 1.926 / sqrt(915)
+1.693 + 1.96 * 1.926 / sqrt(915)
+```
+
+(c). 95% CI for the *proportion* of students who produce zero articles.
+```{r}
+# Sample proportion
+p.hat <- 275 / 915
+p.hat
+# Standard error: sqrt(phat * (1 - phat) / n)
+se <- sqrt(p.hat * (1 - p.hat) / 915)
+se
+# CI
+p.hat - 1.96 * se
+p.hat + 1.96 * se
+```
+
+We find that a 95% CI for the percentage of all Biochem PhD who produce no articles is 27%-33%.
+
+### Q2: Average hours studied
+
+(a). Always use Welch's.
+
+(b).
+```{r}
+Delta.hat <- 12 - 9
+Delta.hat
+std.error <- sqrt(4^2/16 + 5^2/25)
+std.error
+t.Welch <- Delta.hat / std.error
+t.Welch
+```
+
+(c).
+```{r}
+3 - 2.026 * 1.414214
+3 + 2.026 * 1.414214
+```
+
+Our 95% CI for (av hours studied by seniors) - (av hours studied by freshman) goes from 0.13 hours to 5.87 hours.
+
+This CI (barely) does not contain zero. This means the P-value of the test would be less than 0.05. We have weak evidence that seniors study more than freshman on average. However, the sample sizes are very small, and even if there is a difference, it's possible that it could be very small. We should get more data.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

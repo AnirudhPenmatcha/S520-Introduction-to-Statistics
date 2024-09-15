@@ -1,0 +1,66 @@
+---
+title: "Problem Set 11"
+output: html_document
+date: "2023-11-14"
+---
+
+
+# Question 6
+
+# H0: The poisson model is a good fit for the data
+# H1: The poisson model is not a good fit for the data
+
+```{r}
+data <- read.csv("epl2223.csv")
+```
+
+# (a) Create a new variable (of length 380) called TotalGoals
+```{r}
+TotalGoals <- data$FTHG + data$FTAG
+observations <- table(TotalGoals)
+```
+
+# (b) Count the number of games with 0 goals, 1 goals, . . . , 5 goals, 6 goals, and “7 or more goals.” These are your observed counts.
+```{r}
+observations["7 or more"] <- sum(observations[7:length(observations)])
+observations <- observations[1:7]
+observations
+```
+
+# (c) Find the mean number of total goals over all 380 games. Call this m.
+```{r}
+MEAN <- mean(TotalGoals)
+MEAN
+```
+
+# (d) Find the expected count for each category. (These should add up to 380.)
+```{r}
+expectedProbability <- dpois(0:6, MEAN)
+expectedProbability[7] <- 1 - sum(expectedProbability[1:6])
+expectedProbability
+```
+
+# (e)  Calculate a chi-squared statistic and a P - value, and state a conclusion.
+```{r}
+# Chi-squared statistic
+test <- chisq.test(observations, p = expectedProbability)
+statistic <- test$statistic
+
+# P-value
+p <- test$p.value
+```
+
+# Chi-square statistic
+```{r}
+statistic
+```
+
+# P-value
+```{r}
+p
+```
+
+# Conclusion
+# Here the p value is greater than 0.05. Therefore, we fail to reject the null hypothesis and 
+# hence the poisson model is not a good fit for the data and there is no significant 
+# relationship between the number of total goals and the number of observed goals

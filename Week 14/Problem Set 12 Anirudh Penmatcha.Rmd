@@ -1,0 +1,195 @@
+---
+title: "Problem Set 12.Rmd"
+output: html_document
+date: "2023-12-09"
+---
+
+```{r}
+library(ggplot2)
+```
+
+# 1.
+```{r}
+sis <- c(69, 64, 65, 63, 65, 62, 65, 64, 66, 59, 62)
+bro <- c(71, 68, 66, 67, 70, 71, 70, 73, 72, 65, 66)
+```
+
+# (a)
+```{r}
+corr <- cor(sis, bro)
+R_SQ <- corr^2
+# The sample coefficient of determination is 
+R_SQ
+```
+
+# (b)
+```{r}
+Test_Corr <- cor.test(sis, bro)
+Test_Corr
+```
+The p-value is not less than alpha. So, we fail to reject the null hypothesis that a sister's height alone is sufficient to predict the brother's height
+
+# (c)
+```{r}
+fit <- lm(bro ~ sis)
+ConfidenceInterval <- confint(fit, level = 0.9)
+ConfidenceInterval
+```
+Therefore, the 0.9 level confidence interval for the slope of the population regression line for predicting y from x is 0.054 to 1.127.
+
+
+# 2.
+# (a)
+The null hypothesis (H0): There is no significant difference between the average anxiety levels for male and female students
+The alternate hypothesis (H1): There is a significant difference between the average anxiety levels for male and female students
+```{r}
+df <- read.table("examanxiety.txt", sep = "\t", header = TRUE)
+df
+male <- df$Anxiety[df$Gender == "Male"]
+female <- df$Anxiety[df$Gender == "Female"]
+# two-sample t-test
+t_test <- t.test(male, female)
+t_test
+```
+The p-value is found to be 0.7424 which means we failed to reject the null hypothesis meaning there is no significant difference. There is no significant difference between the average anxiety levels for male and female students
+
+# (b)
+```{r}
+fit1 <- lm(Exam ~ Anxiety, df)
+slope <- coef(fit1)["Anxiety"]
+intercept <- coef(fit1)["(Intercept)"]
+ggplot(df, aes(x = Anxiety, y = Exam)) +
+  geom_point() +  
+  geom_abline(slope = slope, intercept = intercept, color = "red") +
+  labs(x = "Anxiety", y = "Exam") +  
+  ggtitle("Scatterplot of Anxiety vs Exam with Regression Line")
+```
+```{r}
+fit1
+```
+
+What our regression line hear means that's the data of exam vs anxiety has a pattern following with a negative slope. So with this specific linear model and data, we can infer that the with high anxiety levels, exam scores are generally lower. But, the line doesn't exactly fit it so well because the points are a little scattered. So it's hard to say we can be 100% certain about this fit.
+
+# (c)
+# (i)
+```{r}
+library(broom)
+fit1.aug <- augment(fit1)
+ggplot(fit1.aug, aes(df$Anxiety, .resid)) + geom_point() + geom_smooth()
+```
+Generally, in such a plot, if the smooth line is close to a horizontal line, we can say there is a linearity. But in our problem we don't see that. So we can't say that there is linearity
+
+# (ii)
+For independence in our regression, because our model was fitted using data which is a random sample from a larger population of students, we can say that our data follows an IID distribution. Therefore, we can say that there is independence.
+
+# (iii)
+```{r}
+ggplot(fit1.aug, aes(df$Anxiety, abs(.resid))) + geom_point() + geom_smooth()
+```
+For homoskedasticity, as long as the spread of the residuals changes as we go from left to right, we can say that there is equal variance of errors. Here it does look like the spread of the residuals changes as we go from left to right. So it does look like the data has homoskedasticity.
+
+# (iv)
+# 3.
+
+# (a)
+There are three assumptions to be made for the analysis of variance F-test: The observations are independent, All of the populations are normal, and Homoscedasticity.
+
+Observations are indenpendent: All the rats are put into 4 cages by splitting them up randomly. So we can assume that the observations are independent. 
+
+All the populations are normal: When we look at the graphs, they are close to a straight line. So we can say that they are approximately normal. 
+
+Homoscedasticity: Generally with real data it's hard to get standard deviations of all the sample very close to each other. Although Fruit has a higher standard deviation than the rest while the other are closer to each other, we can still say that there is homoscedasticity. 
+
+So the data here is approximately consistent with homoscedasticity.
+
+# (b)
+```{r}
+M_fruit <-  83.5
+SD_fruit <- 16.9
+M_carb <- 92.3
+SD_carb <- 14.6
+M_meat <- 88.6
+SD_meat <- 14.2
+M_mixed <- 99.4
+SD_mixed <- 14.1
+total <- 140
+sample <- 35
+
+average <- mean(M_fruit, M_carb, M_meat, M_mixed)
+std_dev <- c(SD_fruit, SD_carb, SD_meat, SD_mixed)
+cal <- sample * (M_fruit - average)^2 + sample * (M_carb - average)^2 + sample * (M_meat - average)^2 +sample * (M_mixed - average)^2
+BDF <- 3
+B_MS <- cal/BDF
+SS <- (sample-1) * SD_fruit^2 + (sample-1) * SD_carb^2 + (sample-1) * SD_meat^2 + (sample-1) * SD_mixed^2
+DF <- 136
+within_MS <- SS/DF
+F_value <- B_MS/within_MS
+```
+
+Therefore, we get a F value of 6.96, between mean square of 1566.25, within mean square of 224.805, Total 35272.23, Total DF 139, and a p-value of 0.00021
+
+# (c)
+
+Well the p-value being very low we have to say that there is a difference in the means of weight gained the 4 different groups. All the means could be different or even 3 are same but 1 is different. But we could always still make use of more data at the end of the day.  
+
+
+
+
+# 4.
+
+```{r}
+exp <- read.table("GameEmpathy.txt", sep = " " , header = TRUE)
+exp
+```
+
+Here the null hypothesis (H0) will be that the mean empathies across the three games that people played is same (or) U0 = U1 = U2.
+The alternate hypothesis (H1) will be that the at least one mean is different. 
+
+# (a)
+
+```{r}
+library(ggplot2)
+
+neutral <- exp$empathy[exp$game.type == "neutral"]
+HL <- exp$empathy[exp$game.type == "HalfLife"]
+gta <- exp$empathy[exp$game.type == "GTA"]
+
+neutral_iden <- exp$identify[exp$game.type == "neutral"]
+HL_iden <- exp$identify[exp$game.type == "HalfLife"]
+gta_iden <- exp$identify[exp$game.type == "GTA"]
+
+
+ggplot(exp, aes(x = game.type, y = empathy)) + geom_boxplot()
+```
+
+Using just the graph it's hard to tell that these samples from populations with the same mean. We'll need to try a different method.
+
+Let's calculate the anova:
+```{r}
+anova <- aov(empathy ~ game.type, data = exp)
+summary(anova)
+```
+
+The p-value isn't small, so we cannot reject the null hypothesis which means the empathies across all the three games that people played is the same.   
+
+# (b)
+# (i) (ii) (iii)
+Null hypothesis (H0): There is no relationship between identification and empathy for student playing one of the particular video game
+Alternate hypothesis (H1): There is a relationship
+
+I should be writing the Null and Alternate Hypothesis individually for every sub-question but for brevity I'm writing it once.
+```{r}
+# We have already subset the empathy and identity data video game wise
+# Now let's find the correlation between them
+neutral_corr <- cor.test(neutral_iden, neutral)
+HL_corr <- cor.test(HL_iden, HL)
+gta_corr <- cor.test(gta_iden, gta)
+
+# Now lets find their p-values and adjust for multiple testing
+p_val <- c(neutral_corr$p.value, HL_corr$p.value, gta_corr$p.value)
+p_adjust <- p.adjust(p_val, method = "bonferroni")
+p_adjust
+```
+The adjusted p-values for neutral and Half-Life games indicate that their null hypothesis couldn't be rejected. Although the p-value for gta is comparatively lower, the p-value is not low enough to reject the null. It is quite close to 0.05, so potentially with a more data or analysis, we may find clear relationship. But, for now, we have still failed to reject the null in statistical context. 
+
+

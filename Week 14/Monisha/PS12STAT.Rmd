@@ -1,0 +1,238 @@
+---
+title: "PS12"
+author: "Monisha"
+date: "2023-12-08"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+###Q2. The file contains information on a number of variables measured on a sample of 103 students taking a math exam:
+
+Code: a label for the individual in the sample (not scientifically interesting)
+Revise: hours spent revising for math exam.
+Exam: score on a math exam on a scale from 0 to 100.
+Anxiety: "math anxiety" on a scale from 0 to 100 (100 is the most anxious)
+Gender: female or male
+
+Assume the data is random from a larger population of students.
+
+####(a) Is there a significant difference between average anxioety for the population of male students and the population of female students? Perform an appropriate significance test, staing hypothesis, a P-value and a substantive conclusion.
+
+```{r}
+examanxiety_data <- read.table("examanxiety.txt", header=TRUE, sep="\t")
+
+# Test for difference in average anxiety between genders using t-test
+male_anxiety <- examanxiety_data$Anxiety[examanxiety_data$Gender == "Male"]
+female_anxiety <- examanxiety_data$Anxiety[examanxiety_data$Gender == "Female"]
+
+# Perform t-test
+t_test_result <- t.test(male_anxiety, female_anxiety)
+
+# Print results
+print(t_test_result)
+```
+The R code performs a Welch Two Sample t-test to determine if there is a significant difference between the average anxiety levels of male and female students. The null hypothesis for this test is that there is no difference in average anxiety levels between the two genders.
+
+The output of the t-test shows a t-value of -0.32961 with a degrees of freedom (df) of 100.41, and a p-value of 0.7424. The p-value is much higher than the conventional significance level of 0.05, indicating that the evidence is insufficient to reject the null hypothesis. The confidence interval for the difference in means includes zero (-7.147444 to 5.110827), further indicating that the difference is not statistically significant.
+
+In conclusion, the test does not provide strong evidence of a difference in mean anxiety levels between male and female students in the population.
+
+####(b) Let anxiety be your x-varible and exam score ve your y-variable. Find the regression line to predict exam score from anxiety. Carefully explain (in words or using math) what your regression line means do not just paste R output.
+
+```{r}
+# Linear regression model for predicting Exam score from Anxiety
+model <- lm(Exam ~ Anxiety, data=examanxiety_data)
+
+# Summary of the model
+summary(model)
+```
+The output of the regression indicates that the relationship between anxiety and exam score can be described by the equation:
+
+Exam score = 111.2444 - 0.7300 * Anxiety
+
+This means that for every increase of one unit in anxiety, the exam score is predicted to decrease by 0.7300 units. The intercept (111.2444) represents the predicted exam score for a student with zero anxiety. Both the intercept and the slope are statistically significant, as indicated by the p-values (both are less than 0.05).
+
+The negative coefficient for anxiety (-0.7300) suggests that there is an inverse relationship between anxiety and exam score: as anxiety increases, the predicted exam score decreases.
+
+The model's R-squared value is 0.1933, meaning that approximately 19.33% of the variability in exam scores is explained by anxiety levels. The adjusted R-squared is slightly lower at 0.1853, which takes into account the number of predictors in the model (in this case, just one). The F-statistic and its associated p-value indicate that the model is statistically significant overall.
+
+####$(c) Let anxiety be your x-variable and exam score be your y-variable.Which of the following regression assumptions are met? Make arguements and/or show graphs to suppoer your answers:
+
+i. linearity
+ii. Independence
+iii. Equal variance of errors (homoskedasticity)
+iv. Normality of errors.
+
+```{r}
+# Checking regression assumptions
+
+# Set smaller margins
+par(mar=c(4, 4, 2, 2))
+
+# Plotting residuals to check assumptions
+par(mfrow=c(2,2))
+
+# Plot for Linearity and Homoskedasticity
+plot(examanxiety_data$Anxiety, examanxiety_data$Exam)
+abline(model)
+
+# Residuals vs Fitted values (for Homoskedasticity)
+plot(model, which=1)
+
+# Normal Q-Q plot (for Normality)
+qqnorm(resid(model))
+qqline(resid(model))
+
+# Scale-Location plot (for Homoskedasticity)
+plot(model, which=3)
+
+# Reset to default par settings after plotting (optional)
+par(mfrow=c(1,1), mar=c(5, 4, 4, 2) + 0.1)
+
+```
+
+i. Linearity: The scatter plot with the regression line suggests a generally linear relationship between anxiety and exam scores, but with some curvature, indicating potential non-linearity.
+
+ii. Independence: This assumption cannot be directly inferred from the plots. However, if the data is a random sample and there's no logical connection between the observations, it's reasonable to assume independence.
+
+iii. Equal Variance of Errors (Homoskedasticity): The "Residuals vs Fitted" and "Scale-Location" plots indicate that the residuals have unequal spread across the range of fitted values, suggesting potential heteroskedasticity.
+
+iv. Normality of Errors: The "Normal Q-Q Plot" shows deviations from the straight line, particularly at the ends, indicating that the errors may not be normally distributed.
+
+In summary, the regression model does not fully meet the assumptions of linearity, homoskedasticity, and normality of errors. Adjustments to the model or data transformations may be necessary to meet these assumptions.
+
+### Q3. We wish to study the effects of four different rat feeds (fruits, carbs, meat and mixed) on rat weight gain. 140 rats, each kept in a separate cage, are ramdomly split into four equal groups of 35. Each group is put on a different feed for a month. The amount of weight gained during the month is measured or each rat. The sample means and the sample standard deviatinos of the results (all in grams are):
+
+Fruit: mean 83.5, standard deviation 16.9
+Carbs: mean 92.3, standard deviation: 14.6
+Meat: mean 88.6, standard deviation 14.2
+Mixed: mean 99.4, standard deviation 14.1
+Figure , shows the normal QQ plots of the data
+
+#### (a) What are the assumptions of the analysis of variance F-test? Are the data here approximantely consistent with these assumtions? 
+
+Assumptions:
+1. Each population from which a sample is taken is assumed to be normal 
+2. Each sample is randomly sleected and independent. 
+3. The populations are assumed to have equal standard deviations (or variances)
+
+#### (b) complete the analysis of variance table below.
+
+
+#### (c) What can you conclude from the analysis of variance? (Give a substansive conclusion, not just "reject" or "don't reject")
+
+Since the p value is 0.000 which is less than 0.05 level of significance, we reject the null hypothesis at 5% level of significance. Atleast one of the four different rat feeds is different from others. 
+
+### Q4. To study the relationship between between video games and empathy, researchers performed a randomized experiment on 155 italian high school students.
+
+Each participant played a ranomly selected game of one of the three types:
+
+- "Neutral games" with no violent or sexual content (Dream Pinball 3D or Q.U.B.E.2.)
+- Games from the Half-Life series: The researchers considererd these games violent but not sexist.
+- Games from the Grand Theft Auto (GTA) series: the researhers considered these games violent and sexist, and the player's characters in these games to be misogynistic (woman-hating)
+
+After playing the game, the participants were shown a photo of a victim of violence and asked a series of questions. Their answers were turned into an “empathy score” on a scale from 1 to 7.
+
+In addition, the participants were asked questions about whether they identified (that is, related to) the character they played in the game. Their answers were turned into an “iden- tification score” on a scale from 1 to 7.
+The file GameEmpathy.txt (in the Data folder on Canvas) contains observations on 153 of the participants in the experiment. (Two observations are omitted because of missing data.) The variables:
+• sex: Male or female.
+• game.type: Neutral, Half-Life, or GTA.
+• identify: A number on a scale from 1 to 7, with 1 meaning the least identification with the character they played, and 7 means the most identification.
+• empathy: A number on a scale from 1 to 7, with 1 meaning the least empathy and 7 meaning the most empathy.
+Read the data into R, e.g. by using read.table().
+
+####(a) Do the different types of game lead to (population) differences in average empathy? Draw graphs, perform an ANOVA, and state your conclusion. Note: The samples aren’t quite normal, but the samples are large enough that this shouldn’t be a problem.
+
+```{r}
+# Reading the data from the GameEmpathy.txt file
+GameEmpathy <- read.table("GameEmpathy.txt", header = TRUE, sep = "\t", stringsAsFactors = TRUE)
+
+# Part (a): Do different types of games lead to differences in average empathy?
+# We can use ANOVA to test this.
+
+# Visualize the empathy scores for each game type with boxplots
+boxplot(empathy ~ game.type, data = GameEmpathy, main = "Empathy Scores by Game Type",
+        xlab = "Game Type", ylab = "Empathy Score")
+
+# Perform ANOVA
+anova_result <- aov(empathy ~ game.type, data = GameEmpathy)
+summary(anova_result)
+
+```
+
+```{r}
+# Try reading the data with a comma as the separator
+GameEmpathy <- read.table("GameEmpathy.txt", header=TRUE, sep=",", stringsAsFactors = TRUE)
+
+# If comma doesn't work, try a space
+# GameEmpathy <- read.table("GameEmpathy.txt", header=TRUE, sep=" ", stringsAsFactors = TRUE)
+
+# Check the structure of the data frame
+str(GameEmpathy)
+
+# If the data is read correctly, the variables should now be recognized.
+
+```
+####(b) Is there a relationship between identification and empathy for: 
+i. Students who played neutral games?
+ii. Students who played Half-Life? 
+iii. Students who played GTA?
+Draw graphs (or do calculations), and state your conclusions, remembering to adjust for multiple testing. Hint: If your data set is called GameEmpathy, you can pick out the data for individuals who played GTA with
+
+    GTA.players <- subset(GameEmpathy, game.type == "GTA")
+    
+    ```{r} 
+    # Assuming GameEmpathy is already loaded from part (a)
+
+# Part (b): Is there a relationship between identification and empathy?
+
+# Subset the data by game type
+neutral_players <- subset(GameEmpathy, game.type == "neutral")
+halflife_players <- subset(GameEmpathy, game.type == "Half-Life")
+gta_players <- subset(GameEmpathy, game.type == "GTA")
+
+# Perform correlation tests for each subset
+neutral_cor <- cor.test(neutral_players$identify, neutral_players$empathy)
+halflife_cor <- cor.test(halflife_players$identify, halflife_players$empathy)
+gta_cor <- cor.test(gta_players$identify, gta_players$empathy)
+
+# Collect the p-values and adjust for multiple testing
+p_values <- c(neutral_cor$p.value, halflife_cor$p.value, gta_cor$p.value)
+p_adjusted_values <- p.adjust(p_values, method = "bonferroni")
+
+# Output the adjusted p-values
+p_adjusted_values
+
+    ```
+
+```{r}
+# Read the data, ensuring we use the correct separator
+GameEmpathy <- read.table("GameEmpathy.txt", header=TRUE, sep="", stringsAsFactors = TRUE)
+
+# Check the structure of the data frame to confirm correct column names
+str(GameEmpathy)
+
+# Subset data for each game type
+neutral_games <- subset(GameEmpathy, game.type == "neutral")
+halflife_games <- subset(GameEmpathy, game.type == "HalfLife")
+gta_games <- subset(GameEmpathy, game.type == "GTA")
+
+# Run correlation tests for each subset
+neutral_cor <- cor.test(neutral_games$identify, neutral_games$empathy)
+halflife_cor <- cor.test(halflife_games$identify, halflife_games$empathy)
+gta_cor <- cor.test(gta_games$identify, gta_games$empathy)
+
+# Output the results of the correlation tests
+neutral_cor
+halflife_cor
+gta_cor
+
+# Adjust p-values for multiple comparisons
+p_values <- c(neutral_cor$p.value, halflife_cor$p.value, gta_cor$p.value)
+adjusted_p_values <- p.adjust(p_values, method = "bonferroni")
+adjusted_p_values
+
+```
+

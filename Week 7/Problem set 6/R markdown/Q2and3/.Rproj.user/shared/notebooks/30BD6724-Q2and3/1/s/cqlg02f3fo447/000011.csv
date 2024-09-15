@@ -1,0 +1,6 @@
+"0","y_25_sum <- sum(y_25)"
+"0","print(paste(""Generating the sum of 25 different samples = "", y_25_sum))"
+"1","[1]"
+"1"," ""Generating the sum of 25 different samples =  4520"""
+"1","
+"
